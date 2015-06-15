@@ -1,0 +1,25 @@
+1)
+./mergeInputFiles.sh /home/mfiascar/Physics/Accelerator/Simulation/OutputTests
+
+
+2) 
+spyroot
+
+from simulation import *
+inputDirectory = "/home/mfiascar/Physics/Accelerator/Simulation/HL-LHC/v1.0/HorizB2"
+sim = simulation(inputDirectory)
+sim._print()
+sim._print_betafunctions()
+sim.nsigmaColl()
+sim._makeLayout_()
+sim.npartColl()
+sim.makeLossPlots()
+sim.efficiency()
+sim.dispersion()
+sim.makeTransverseDist0()
+sim.makeFirstImpacts()
+sim.makeImpacts()
+
+
+3) to make loss plots:
+spyroot makePlot.py

@@ -1,0 +1,80 @@
+#!/usr/bin/env python
+#
+# usage: copy-local-castor <localDirectory> <castorDirectory> [local requirement for grep]
+#
+
+from os import popen
+import sys
+
+
+
+
+## main
+if __name__ == "__main__":
+    
+    if len(sys.argv) < 3 :
+        print 'usage', sys.argv[0], ' <localDirectory> <castorDirectory> [local req for grep]'
+        sys.exit()
+        pass
+    #for arg in sys.argv:
+    #    print arg
+    #    pass
+    path1 = sys.argv[1]
+    path2 = sys.argv[2]
+
+    if len(sys.argv) == 4:
+        directories = popen("ls -l %s | grep '%s'"  % (path1, sys.argv[3]) ).readlines()
+    else:
+        directories = popen('ls -l %s' %(path1)).readlines()
+        pass
+    
+    DiskFiles={}
+    DiskFilesList=[]
+    for fileentry in directories:
+        fileEL=fileentry.split()
+        if len(fileEL) > 8:
+            filename=fileEL[8]
+            filesize=int(fileEL[4])
+            DiskFiles[filename]=filesize
+            DiskFilesList.append( filename )
+            pass
+        pass
+    
+    # Ask disk for files
+    files = popen('nsls -l %s' %(path2)).readlines()
+    CastorFiles={}
+    for file in files:
+        fileL=file.split()
+        if len(fileL)>8:
+            filename=fileL[8]
+            filesize=int(fileL[4])
+            CastorFiles[filename]=filesize
+            pass
+        pass
+
+    DiskFilesList.sort()
+    for fileName in DiskFilesList:
+        copyFlag=0
+        if CastorFiles.has_key(fileName):
+            if CastorFiles[fileName]!=DiskFiles[fileName]:
+                print fileName,' sizes not same'
+                copyFlag=1
+                pass
+            else:
+                print fileName, " exists on castor (with same file size) -> do nothing"
+                pass
+            pass
+        else:
+            copyFlag=1
+            pass
+        if  copyFlag==1:
+            print 'copying file ',fileName,' from disk...'       
+            com='rfcp '+path1+'/'+fileName+' '+path2+'/'+fileName
+            print com
+            popen(com);
+            pass
+        pass
+
+    
+
+

@@ -1,0 +1,103 @@
+#!/bin/sh
+
+"""date"
+
+exec python -it "$0" "$@"
+
+"""
+
+
+import os, sys
+
+print "Setting sys.path ..."
+
+if not os.getcwd() in sys.path:
+    sys.path = [ os.getcwd() ] + sys.path
+
+
+if not '' in sys.path:
+   sys.path = [ '' ] + sys.path
+
+# get some colors:
+#codes = {}
+#codes['redf'] = os.popen("tput setaf 1").read()
+#codes['redb'] = os.popen("tput setab 1").read()
+#codes['greenf']=os.popen("tput setaf 2").read()
+#codes['blackf']=os.popen("tput setaf 0").read()
+
+
+#sys.ps1 = codes['greenf']+'PyROOT> '+codes['blackf']
+sys.ps1 = 'PyROOT> '
+
+fhistory = os.path.expanduser( '~/.PyROOTSession.history' )
+
+# readline support
+import rlcompleter, readline
+
+readline.parse_and_bind( 'tab: complete' )
+readline.parse_and_bind( 'set show-all-if-ambiguous On' )
+
+# history support
+if os.path.exists( fhistory ):
+    readline.read_history_file( fhistory )
+    readline.set_history_length( 1024 )
+
+import atexit
+atexit.register( readline.write_history_file, fhistory )
+
+#import AthenaCommon.ShellEscapes as ShellEscapes
+#sys.excepthook = ShellEscapes.ShellEscapes()
+
+import __builtin__
+_reload = __builtin__.reload
+def reload(mod_or_name):
+    if isinstance(mod_or_name,str):
+        mod_or_name = __import__(mod_or_name)
+    return _reload(mod_or_name)
+__builtin__.reload = reload
+
+#from Include import Include, IncludeError
+#include = Include( False )
+
+print "Importing ROOT..."
+from ROOT import *
+
+
+#for p in sys.argv:
+#    print p
+
+ParseNextArg=False
+UnpickleNextArg=False
+for p in sys.argv:
+    # parse command line everything followed by a -c
+    if ParseNextArg:
+        #print "try exec('%s')" % p
+        exec(p)
+        ParseNextArg=False
+    elif UnpickleNextArg:
+        print "will try to unpickle this file: %s" % (p)
+        import SObject
+        tmp_sobject = SObject.SObject('tmp')
+        tmp_sobject.unpickle(p)
+        className = tmp_sobject.className
+        moduleName = tmp_sobject.moduleName
+        exec('import %s' % moduleName)
+        try:
+            exec('%s = %s.%s("dummy")' % (tmp_sobject.name, moduleName, className) )
+        except:
+            print "exception with the following command\n%s" % ('%s = %s.%s("dummy")' % (tmp_sobject.name, moduleName, className))
+        try:
+            exec('%s.unpickle("%s")' % ( tmp_sobject.name, p))
+        except:
+            print "exception with the following command\n%s" % ('%s.unpickle(%s)' % ( tmp_sobject.name, p))
+        UnpickleNextArg=False
+    # other stuff (no '-' in it) is assumed to be a file
+    # so, we will do an execfile(p)
+    # note, do not execfile pyroot (again) !!!!
+    elif p.find('-') == -1 and p.find('bin/spyroot') == -1:
+        execfile(p)
+    # if -c option is given, parse next argument
+    elif p.find('-c') != -1:
+        ParseNextArg=True
+    elif p.find('-u') != -1:
+        UnpickleNextArg=True

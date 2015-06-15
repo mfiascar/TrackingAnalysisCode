@@ -1,0 +1,112 @@
+
+import RootStyles
+rs = RootStyles.RootStyles()
+rs.setAtlasStyle2()
+rs.style.cd()
+rs.style.SetPadRightMargin( 0.17 )
+rs.style.SetPadTopMargin( 0.07 )
+rs.style.SetPaintTextFormat("2.1f")
+rs.setPalette()
+ROOT.gROOT.ForceStyle()
+
+inputDir = "/home/mfiascar/Physics/Accelerator/Simulation/FCC/TOY_V1/HaloDist_withTCTs/plots/"
+f = TFile.Open(inputDir+"IPLayout.root")
+g_betax = f.Get("g_betax")
+g_mux = f.Get("g_mux")
+g_mux_scale = g_mux.Clone("g_mux_scale")
+rightmax = 28.7
+rightmin = 27.6
+
+#for LHC 0.55 b*
+#f = TFile.Open("/home/mfiascar/Physics/Accelerator/Simulation/7TeVStandard_HorizB1/plots/IP5Layout.root"
+#rightmax = 32.8
+#rightmin = 31.4
+
+c = TCanvas("c","c")
+c.cd()
+g_betax.SetLineColor(kBlack)
+g_betax.SetMarkerColor(kBlack)
+g_betax.SetMarkerStyle(21)
+g_betax.GetXaxis().CenterTitle()
+g_betax.GetXaxis().SetTitle("s [m]")
+g_betax.GetYaxis().CenterTitle()
+g_betax.GetYaxis().SetTitle("#beta_{x} [m]")
+g_betax.GetYaxis().SetTitleOffset(1.6)
+g_mux_scale.SetLineColor(kRed)
+g_mux_scale.SetMarkerColor(kRed)
+g_mux_scale.SetMarkerStyle(22)
+g_betax.Draw("AL")
+scale = gPad.GetUymax()/(rightmax-rightmin)
+
+s = Double()
+mux = Double()
+for n in range(g_mux.GetN()):
+    g_mux.GetPoint(n,s,mux)
+    g_mux_scale.SetPoint(n,s,(mux-rightmin)*scale)
+g_mux_scale.Draw("L")
+
+axis = TGaxis(gPad.GetUxmax(),gPad.GetUymin(),gPad.GetUxmax(),gPad.GetUymax(),rightmin,rightmax,510,"+L")
+xmin = gPad.GetUxmin()
+xmax = gPad.GetUxmax()
+axis.SetLineColor(kRed)
+axis.SetLabelColor(kRed)
+axis.SetTitleColor(kRed)
+axis.CenterTitle()
+axis.SetTitle("phase advance")
+axis.Draw()
+
+fL = TFile.Open("/home/mfiascar/Physics/Accelerator/Simulation/FCC/TOY_V1/GaussDist/plots/Layout.root")
+hd = fL.Get("h_dipole_position")
+hq = fL.Get("h_quadrupole_position")
+hc = fL.Get("h_coll_position")
+hd.SetLineColorAlpha(38,1.)
+hd.SetLineWidth(1)
+hd.SetMarkerColor(10)
+hd.SetFillColor(38)
+hq.SetLineColor(41)
+hq.SetLineWidth(1)
+hq.SetLineColorAlpha(41,1.0)
+#hq.SetMarkerColor(5)
+hq.SetFillColor(41)
+hc.SetLineColorAlpha(12,1.)
+hc.SetLineWidth(1)
+hc.SetMarkerColor(12)
+hc.SetFillColor(12)
+hq.Scale(2.)
+hc.Scale(2.)
+
+pad = TPad("layout","layout",0.0,0.90,1.,1.,-1,0)
+pad.SetBottomMargin(0)
+pad.Draw()
+pad.cd()
+rs.style.SetDrawBorder(0)
+myaxis = TGaxis()
+myaxis.SetMaxDigits(4)
+hq.GetXaxis().SetRangeUser(xmin,xmax)
+#hd.GetXaxis().SetAxisColor(10)
+#hd.GetXaxis().SetLabelColor(10)
+hq.GetXaxis().SetTitle("")
+#hd.GetYaxis().SetAxisColor(10)
+#hd.GetYaxis().SetLabelColor(10)
+hq.GetYaxis().SetTitle("")
+hq.GetXaxis().SetTickLength(0)
+hq.GetYaxis().SetTickLength(0)
+hq.GetXaxis().SetLabelOffset(999)
+hq.GetYaxis().SetLabelOffset(999)
+hq.GetXaxis().SetAxisColor(kWhite)
+hq.GetYaxis().SetAxisColor(kWhite)
+a = hd.GetXaxis()
+line = TLine(a.GetXmin(),0.,a.GetXmax(),0.)
+line.SetLineColor(kWhite)
+line.SetLineWidth(2)
+hq.Draw("H9")
+hd.Draw("same")
+hc.Draw("same")
+line.Draw("same")
+
+rs.myMarkerLine(x=0.88,y=0.70,text="collimator",lineH=0.02,lineColor=12,fsize=0.3,dist=0.03)
+rs.myMarkerLine(x=0.88,y=0.40,text="dipole",lineH=0.02,lineColor=38,fsize=0.3,dist=0.03)
+rs.myMarkerLine(x=0.88,y=0.10,text="quadrupole",lineH=0.02,lineColor=41,fsize=0.3,dist=0.03)
+
+
+

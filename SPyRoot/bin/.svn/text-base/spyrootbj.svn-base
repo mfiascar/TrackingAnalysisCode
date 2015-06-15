@@ -1,0 +1,70 @@
+#!/bin/sh
+
+"""date"
+
+exec python -t "$0" "$@"
+
+"""
+
+
+import os, sys
+
+print "Setting sys.path ..."
+
+if not os.getcwd() in sys.path:
+    sys.path = [ os.getcwd() ] + sys.path
+
+
+if not '' in sys.path:
+   sys.path = [ '' ] + sys.path
+
+sys.ps1 = 'PyROOT> '
+
+
+# readline support
+import rlcompleter, readline
+
+readline.parse_and_bind( 'tab: complete' )
+readline.parse_and_bind( 'set show-all-if-ambiguous On' )
+
+
+
+import __builtin__
+_reload = __builtin__.reload
+def reload(mod_or_name):
+    if isinstance(mod_or_name,str):
+        mod_or_name = __import__(mod_or_name)
+    return _reload(mod_or_name)
+__builtin__.reload = reload
+
+#from Include import Include, IncludeError
+#include = Include( False )
+
+print "Importing ROOT..."
+from ROOT import *
+
+#print "All arguments"
+#for p in sys.argv:
+#    print p
+
+# get job description
+import BatchJob
+
+if len(sys.argv) < 2:
+    datapath = './*.pickled'
+else:
+    datapath = sys.argv[1]
+    pass
+
+from glob import glob
+fileArray = glob(datapath)
+fileArray.sort()
+
+#print fileArray
+
+for f in fileArray:
+    bj = BatchJob.BatchJob('dummy')
+    bj.unpickle( f )
+    bj.Print()
+    bj.RunJob()
+    pass

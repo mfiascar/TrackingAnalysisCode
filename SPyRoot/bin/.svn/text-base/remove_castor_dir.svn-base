@@ -1,0 +1,41 @@
+#!/usr/bin/env python
+#
+# usage: remove_castor_dir  <castorDirectory>
+#
+
+
+from os import popen
+import sys
+
+## main
+if __name__ == "__main__":
+    # check arguments
+    if len(sys.argv)!=2:
+        print 'usage', sys.argv[0], ' <castor dir>'
+        sys.exit()
+
+    for arg in sys.argv:
+        print arg
+
+    path1 = sys.argv[1]
+
+    directories = popen('nsls -l %s' %(path1)).readlines()
+
+    CastorFiles={}
+    for fileentry in directories:
+            fileEL=fileentry.split()
+            filename=fileEL[8]
+            filesize=int(fileEL[4])
+    #        if filename!='fullAOD_J7_Zee_38.AAN.root':
+    #            if filename!='fullAOD_J7_Zee_17.AAN.root':
+            CastorFiles[filename]=filesize
+            pass
+
+    for file in CastorFiles:
+        print 'removing file ',file,' from castor...'
+        com='rfrm '+path1+'/'+file
+        print com
+        popen(com);
+
+
+

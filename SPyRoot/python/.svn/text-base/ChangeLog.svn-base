@@ -1,0 +1,27 @@
+2010-12-11 Till Eifert
+	* Add SmartSampleHandler class that has a delayed loading of Samples. Only when accessed, the unpickling is done.
+
+2010-11-03 Till Eifert
+	* next attempt to use this version
+
+	
+2010-10-17 Till Eifert
+	* VarCutAlgorithm.py :  revert SimpleVarCutAlgorithm (tag functionality is already provided in SimpleVarTagAlgorithm)
+	* SObject.py : updated to latest version
+	* Statistics.py : updated to latest version
+	* GenHistAlgorithm.py : updated to latest version
+	* pickleRootTest.py : merged
+	* gridFunctions.py : removed (analysis specific)
+	* SampleHandler.py : minor merge
+	* Sample.py : should remove hardcoded path (c.f. MultiLS method), lots of merging (reverted back to applyAllPreviousCuts=True, moved Scan method ...)
+	* ScanAlgorithm.py : added
+	* Table.py : added
+	* CombinedSample.py : removed (already in Sample.py)
+	* WriterAlgorithm.py : minor changes
+	* RootStyles.py : merged to newer version
+	* VarHistAlgorithm.py : merged to newer version
+	* SumTagCutMaker.py : removed from svn (move to analysis specific dir)
+	* QueueHandlers.py : removed (not needed anymore)
+	* GetLeafNames.py : removed (identical to TTreeHelpers.py)
+	* ProjectFromDraw.py : removed (code in TTreeHelpers.py)
+	* TTreeAlgorithm.py : for now: cat-susy TTreeAlgorithmLooper + SmartTTreeAlgorithmLooper (can handle several cutflows & SmartAlgorithms)

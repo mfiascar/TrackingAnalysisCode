@@ -1,0 +1,386 @@
+from ROOT import *
+from array import array
+
+
+class RootStyles:
+    def __init__(self,):
+        self.markers = []
+        self.paves = []
+        self.style = 0
+        pass
+    
+    def ATLAS_LABEL(self,x, y, color=1, tsize=0.05):
+        l = TLatex() # l.SetTextAlign(12); l.SetTextSize(tsize);
+        l.SetNDC()
+        l.SetTextFont(72)
+        l.SetTextColor(color)
+        l.SetTextSize( tsize )
+        l.DrawLatex(x,y,"ATLAS")
+        pass
+    
+    def myText(self, x, y, color, text, size=0.05, angle=0.0):
+        # tsize=0.05
+        l = TLatex() # l.SetTextAlign(12); l.SetTextSize(tsize);
+        l.SetNDC()
+        l.SetTextColor(color)
+        l.SetTextSize(size)
+        l.SetTextAngle(angle)
+        l.DrawLatex(x,y,text)
+        pass
+
+    def myTextNoNDC(self, x, y, color, text, size, angle=0.0):
+        # tsize=0.05
+        l = TLatex() # l.SetTextAlign(12); l.SetTextSize(tsize);
+        l.SetTextColor(color)
+        l.SetTextSize(size)
+        l.SetTextAngle(angle)
+        l.DrawLatex(x,y,text)
+        pass
+  
+    def myMarkerText(self, x, y, color, mstyle, text, fsize=0.05, mSize=2, dist=0.03):
+        #   printf("**myMarker: text= %s\ m ",text)
+        #tsize=0.06
+        marker = TMarker(x - dist, y, 8)
+        self.markers += [marker]
+        marker.SetNDC()
+        marker.SetMarkerColor(color)
+        
+        marker.SetMarkerStyle(mstyle)
+        marker.SetMarkerSize(mSize)
+        marker.Draw("same")
+        
+        l = TLatex()
+        l.SetTextAlign(12) # l.SetTextSize(tsize)
+        l.SetNDC()
+        l.SetTextSize(fsize)
+        l.DrawLatex(x,y,text)
+        pass
+   
+    def myMarkerLine(self, x,  y, text, lineH, lineColor=1, fsize=0.05, lineStyle=1, dist=0.06):
+
+        l = TLatex()
+        l.SetTextAlign(12) # l.SetTextSize(tsize);
+        l.SetTextSize(fsize)
+        l.SetNDC()
+        l.DrawLatex(x,y,text)
+
+        x2 = x + lineH/2.0 - dist
+        x1 = x2 - lineH
+
+        mline = TLine()
+        mline.SetLineWidth(4)
+        mline.SetLineColor(lineColor)
+        mline.SetLineStyle(lineStyle)
+        mline.DrawLineNDC(x1,y,x2,y)
+        
+        pass
+    
+    def myBoxText(self, x,  y,  boxsizeH, mcolor, text, mfill = 1001, lineColor=1, boxsizeV = 0.03, fsize=0.05, lineStyle=1,
+                  boxLineColor=0, drawLine=True, dist=0.06):
+
+        l = TLatex()
+        l.SetTextAlign(12) # l.SetTextSize(tsize);
+        l.SetTextSize(fsize)
+        l.SetNDC()
+        l.DrawLatex(x,y,text)
+
+        y1 = y - 0.5*boxsizeV
+        y2 = y + 0.5*boxsizeV
+        x2 = x + boxsizeH/2.0 - dist
+        x1 = x2 - boxsizeH
+
+        # printf("x1= %f x2= %f y1= %f y2= %f \n",x1,x2,y1,y2);
+
+        mbox= TPave(x1,y1,x2,y2,0,"NDC")
+        self.paves += [mbox]
+        mbox.SetFillColor(mcolor)
+        mbox.SetFillStyle(mfill)
+        if boxLineColor > 0: mbox.SetBorderSize( boxLineColor )
+        mbox.Draw()
+
+        if drawLine:
+            mline = TLine()
+            mline.SetLineWidth(4)
+            mline.SetLineColor(lineColor)
+            mline.SetLineStyle(lineStyle)
+            y=(y1+y2)/2.
+            mline.DrawLineNDC(x1,y,x2,y)
+            pass
+        pass
+    
+
+
+    def myBox(self, x1, y1, x2, y2, borderSize=1, lineColor=1, fillColor=1, fillStyle=0):
+        mbox = TPave(x1,y1,x2,y2, borderSize, "NDC")
+        self.paves += [mbox]
+        mbox.SetFillColor(fillColor)
+        mbox.SetFillStyle(fillStyle)
+        mbox.SetLineColor(lineColor)
+        mbox.Draw()
+
+    def myBoxText2(self, x,  y,  boxsize, mcolor, text, mfill = 1001, lineColor=1, fsize = 0.05, tsize=0.06, lineStyle=1, borderSize=1):
+
+        tsize=tsize
+
+        l = TLatex()
+        l.SetTextAlign(12) # l.SetTextSize(tsize);
+        l.SetTextSize(fsize)
+        l.SetNDC()
+        l.DrawLatex(x,y,text)
+
+        y1=y-0.25*tsize
+        y2=y+0.25*tsize
+        x2=x-0.3*tsize
+        x1=x2-boxsize
+
+        # printf("x1= %f x2= %f y1= %f y2= %f \n",x1,x2,y1,y2);
+
+        mbox= TPave(x1,y1,x2,y2,borderSize,"NDC")
+        self.paves += [mbox]
+        mbox.SetFillColor(mcolor)
+        mbox.SetFillStyle(mfill)
+        mbox.SetLineColor(mcolor)
+        mbox.Draw()
+
+        mline = TLine()
+        mline.SetLineWidth(borderSize)
+        mline.SetLineColor(lineColor)
+        mline.SetLineStyle(lineStyle)
+        #y=(y1+y2)/2.
+        mline.DrawLineNDC(x1,y1,x2,y1)
+        mline.DrawLineNDC(x1,y2,x2,y2)
+        mline.DrawLineNDC(x1,y1,x1,y2)
+        mline.DrawLineNDC(x2,y1,x2,y2)
+
+        
+
+    def setPalette(self, name='palette', ncontours=999):
+        """
+        Copied from http://ultrahigh.org/2007/08/20/making-pretty-root-color-palettes
+        Set a color palette from a given RGB list
+        stops, red, green and blue should all be lists of the same length
+        see set_decent_colors for an example"""
+
+        if name == "gray" or name == "grayscale":
+            stops = [0.00, 0.34, 0.61, 0.84, 1.00]
+            red   = [1.00, 0.84, 0.61, 0.34, 0.00]
+            green = [1.00, 0.84, 0.61, 0.34, 0.00]
+            blue  = [1.00, 0.84, 0.61, 0.34, 0.00]
+        elif name == "grayNoWhite":
+            stops = [0.0, 1.0]
+            red   = [0.5, 0.0]
+            green = [0.5, 0.0]
+            blue  = [0.5, 0.0]
+        elif name == "grayi":
+            stops = [0.00, 0.34, 0.61, 0.84, 1.00]
+            red   = [0.00, 0.34, 0.61, 0.84, 1.00]
+            green = [0.00, 0.34, 0.61, 0.84, 1.00]
+            blue  = [0.00, 0.34, 0.61, 0.84, 1.00]
+        elif name == "gray2":
+            stops = [0.00, 0.33, 0.66, 1.00]
+            red   = [0.84, 0.61, 0.34, 0.00]
+            green = [0.84, 0.61, 0.34, 0.00]
+            blue  = [0.84, 0.61, 0.34, 0.00]
+
+        elif name == "zeroOne":
+            stops = [0.00, 0.5, 1.00]
+            red   = [0.87, 1.00, 0.51]
+            green = [1.00, 0.20, 0.00]
+            blue  = [0.12, 0.00, 0.00]
+
+        elif name == "zeroWhite":
+            stops = [0.00, 0.5, 1.00]
+            red   = [0.00, 1.00, 1.00]
+            green = [0.81, 1.00, 0.20]
+            blue  = [1.00, 1.00, 0.00]
+        elif name == "paletteStartWithWhite":
+            # default palette, looks cool
+            stops = [0.00, 0.34, 0.61, 1.00]
+            red   = [0.00, 0.00, 0.87, 1.00]
+            green = [0.00, 0.81, 1.00, 1.00]
+            blue  = [0.51, 1.00, 0.12, 1.00]
+
+        # elif name == "whatever":
+            # (define more palettes)
+        else:
+            # default palette, looks cool
+            stops = [0.00, 0.34, 0.61, 0.84, 1.00]
+            red   = [0.00, 0.00, 0.87, 1.00, 0.51]
+            green = [0.00, 0.81, 1.00, 0.20, 0.00]
+            blue  = [0.51, 1.00, 0.12, 0.00, 0.00]
+
+        s = array('d', stops)
+        r = array('d', red)
+        g = array('d', green)
+        b = array('d', blue)
+
+        npoints = len(s)
+        TColor.CreateGradientColorTable(npoints, s, r, g, b, ncontours)
+        gStyle.SetNumberContours(ncontours)
+
+
+    def plotContours(self,contour, color=kBlack, lineWidth=2, text = "", values = []):
+        if text!="":
+            l = TLatex()
+            l.SetTextSize(0.03)
+
+        for i in range(contour.GetSize()):
+            contLevel = contour.At(i)
+
+            for c in range(contLevel.GetSize()):
+                cont = contLevel.At(c)
+                cont.SetLineColor(color)
+                cont.SetLineWidth(lineWidth)
+                cont.Draw("C")
+
+            # Get first graph from list on curves on this level
+            last = contLevel.Last()
+            x = Double()
+            y = Double()
+            last.GetPoint(0, x, y)
+
+            if text!="":
+                t = text
+                if len(values) >= i + 1 :
+                    t = text + " " + str(values[i])
+                l.DrawLatex(x,y, t)
+
+
+
+    def setAtlasStyle(self):
+        """
+        From official ATLAS rootlogon.C file
+        based on a style file from BaBar
+        """
+
+        #..BABAR style from RooLogon.C in workdir
+        atlasStyle = TStyle("ATLAS","Atlas style")
+
+        # use plain black on white colors
+        icol=0
+        atlasStyle.SetFrameBorderMode(icol)
+        atlasStyle.SetCanvasBorderMode(icol)
+        atlasStyle.SetPadBorderMode(icol)
+        atlasStyle.SetPadColor(icol)
+        atlasStyle.SetCanvasColor(icol)
+        atlasStyle.SetStatColor(icol)
+        #atlasStyle.SetFillColor(icol)
+
+        # set the paper & margin sizes
+        atlasStyle.SetPaperSize(20,26)
+        atlasStyle.SetPadTopMargin(0.05)
+        atlasStyle.SetPadRightMargin(0.05)
+        atlasStyle.SetPadBottomMargin(0.16)
+        atlasStyle.SetPadLeftMargin(0.12)
+
+        # use large fonts
+        #Int_t font=72
+        font=42
+        tsize=0.05
+        atlasStyle.SetTextFont(font)
+
+
+        atlasStyle.SetTextSize(tsize)
+        atlasStyle.SetLabelFont(font,"x")
+        atlasStyle.SetTitleFont(font,"x")
+        atlasStyle.SetLabelFont(font,"y")
+        atlasStyle.SetTitleFont(font,"y")
+        atlasStyle.SetLabelFont(font,"z")
+        atlasStyle.SetTitleFont(font,"z")
+
+        atlasStyle.SetLabelSize(tsize,"x")
+        atlasStyle.SetTitleSize(tsize,"x")
+        atlasStyle.SetLabelSize(tsize,"y")
+        atlasStyle.SetTitleSize(tsize,"y")
+        atlasStyle.SetLabelSize(tsize,"z")
+        atlasStyle.SetTitleSize(tsize,"z")
+
+
+        #use bold lines and markers
+        atlasStyle.SetMarkerStyle(20)
+        atlasStyle.SetMarkerSize(1.2)
+        atlasStyle.SetHistLineWidth(2)
+        atlasStyle.SetLineStyleString(2,"[12 12]") # postscript dashes
+
+        #get rid of X error bars and y error bar caps
+        #atlasStyle.SetErrorX(0.001)
+
+        #do not display any of the standard histogram decorations
+        atlasStyle.SetOptTitle(0)
+        #atlasStyle.SetOptStat(1111)
+        atlasStyle.SetOptStat(0)
+        #atlasStyle.SetOptFit(1111)
+        atlasStyle.SetOptFit(0)
+
+        # put tick marks on top and RHS of plots
+        atlasStyle.SetPadTickX(1)
+        atlasStyle.SetPadTickY(1)
+
+
+        self.style = atlasStyle
+        #
+        # atlasStyle.cd()
+        # gROOT.SetStyle("ATLAS")
+        # gROOT.ForceStyle()
+
+
+        # gStyle.SetPadTickX(1)
+        # gStyle.SetPadTickY(1)
+
+
+
+
+    def setAtlasStyle2(self):
+        """
+        2010 ATLAS style (ICHEP conf)
+        """
+
+        #..BABAR style from RooLogon.C in workdir
+        atlasStyle = TStyle("ATLAS2","Atlas style")
+
+        # use plain black on white colors
+        atlasStyle.SetOptStat(0)
+        icol=0
+        atlasStyle.SetFrameBorderMode(icol)
+        atlasStyle.SetCanvasBorderMode(icol)
+        atlasStyle.SetPadBorderMode(icol) 
+        atlasStyle.SetPadColor(icol)
+        atlasStyle.SetCanvasColor(icol)
+        atlasStyle.SetStatColor(icol)
+        atlasStyle.SetPaperSize(20,26)
+        atlasStyle.SetPadTopMargin(0.05)
+        atlasStyle.SetPadRightMargin(0.05)
+        atlasStyle.SetPadBottomMargin(0.16)
+        atlasStyle.SetPadLeftMargin(0.16) # HERE
+        atlasStyle.SetFrameFillColor(icol) # HERE
+
+        atlasStyle.SetTitleXOffset(1.4)
+        atlasStyle.SetTitleYOffset(1.4)
+
+        font=42
+        tsize=0.05
+        atlasStyle.SetTextFont(font)
+        atlasStyle.SetTextSize(tsize)
+        atlasStyle.SetLabelFont(font,"x")
+        atlasStyle.SetTitleFont(font,"x")
+        atlasStyle.SetLabelFont(font,"y")
+        atlasStyle.SetTitleFont(font,"y")
+        atlasStyle.SetLabelFont(font,"z")
+        atlasStyle.SetTitleFont(font,"z")
+        atlasStyle.SetLabelSize(tsize,"x")
+        atlasStyle.SetTitleSize(tsize,"x")
+        atlasStyle.SetLabelSize(tsize,"y")
+        atlasStyle.SetTitleSize(tsize,"y")
+        atlasStyle.SetLabelSize(tsize,"z")
+        atlasStyle.SetTitleSize(tsize,"z")
+        atlasStyle.SetMarkerStyle(20)
+        atlasStyle.SetMarkerSize(1.2)
+        atlasStyle.SetHistLineWidth(2)
+        atlasStyle.SetLineStyleString(2,"[12 12]")
+        atlasStyle.SetEndErrorSize(0.)
+        atlasStyle.SetOptTitle(0)
+        atlasStyle.SetOptFit(0)
+        atlasStyle.SetPadTickX(1)
+        atlasStyle.SetPadTickY(1)
+        
+        self.style = atlasStyle

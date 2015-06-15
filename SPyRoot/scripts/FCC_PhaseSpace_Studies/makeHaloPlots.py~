@@ -1,0 +1,18 @@
+
+from simulation import *
+f = TFile.Open("/home/mfiascar/Physics/Accelerator/Simulation/FCC/TOY_V1/HaloDist_studyHaloTCLA/plots/HaloStudies.root")
+
+integral = h_sec_A.Integral() + h_ter_A.Integral()
+h_sec_A = f.Get("h_secondary_A")
+h_sec_A.Scale(1./integral)
+h_ter_A = f.Get("h_tertiary_A")
+h_ter_A.Scale(1./integral)
+
+c = TCanvas("c","c")
+c.cd()
+c.SetLogy()
+h_sec_A.GetXaxis().SetTitle("A_r [#sigma]")
+h_sec_A.SetLineColor(kRed)
+h_sec_A.SetMarkerColor(kRed)
+h_sec_A.Draw()
+h_ter_A.Draw("same")

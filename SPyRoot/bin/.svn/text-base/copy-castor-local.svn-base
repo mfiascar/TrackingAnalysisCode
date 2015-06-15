@@ -1,0 +1,69 @@
+#!/usr/bin/env python
+#
+# usage: copy-castor-local  <castorDirectory> <localDirectory> [castor requirement for grep]
+#
+
+from os import popen
+import sys
+
+## main
+if __name__ == "__main__":
+
+    if len(sys.argv) < 3:
+        print 'usage', sys.argv[0], ' <castorDirectory> <localDirectory> [castor requirement for grep]'
+        sys.exit()
+        pass
+    #for arg in sys.argv:
+    #    print arg
+
+    path1 = sys.argv[1]
+    path2 = sys.argv[2]
+
+    if len(sys.argv) == 4:
+        directories = popen("nsls -l %s | grep '%s'"  % (path1, sys.argv[3]) ).readlines()
+    else:
+        directories = popen('nsls -l %s' %(path1)).readlines()
+        pass
+
+    CastorFiles      = {}
+    CastorFileList  = []
+    for fileentry in directories:
+        fileEL=fileentry.split()
+        filename=fileEL[8]
+        filesize=int(fileEL[4])
+        #        if filename!='fullAOD_J7_Zee_38.AAN.root':
+        #            if filename!='fullAOD_J7_Zee_17.AAN.root':
+        CastorFiles[filename]=filesize
+        CastorFileList.append( filename )
+        pass
+    
+    #Ask disk for files
+    files = popen('ls -l %s' %(path2)).readlines()
+    DiskFiles={}
+    for file in files:
+        fileL=file.split()
+        if len(fileL)>8:
+            filename=fileL[8]
+            filesize=int(fileL[4])
+            DiskFiles[filename]=filesize
+            pass
+        pass
+
+    
+    CastorFileList.sort()
+    for fileName in CastorFileList:
+        copyFlag=0
+        if DiskFiles.has_key(fileName):
+            if DiskFiles[fileName]!=CastorFiles[fileName]:
+                print fileName,' sizes not same'
+                copyFlag=1
+        else:
+            copyFlag=1
+        if  copyFlag==1:
+            print 'copying file ',fileName,' from castor...'       
+            com='rfcp '+path1+'/'+fileName+' '+path2+'/'+fileName
+            print com
+            popen(com);
+
+
+
